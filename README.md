@@ -13,14 +13,14 @@ import "github.com/leeeboo/feiyin"
 
 
 func main() {
-	c, err := feiyin.NewClient(MEMBER_CODE, APPID, APP_SECRET, REDIS_ADDR) //redis用来做accesstoken的缓存，例如：127.0.0.1:6379
-	if err != nil {
-		panic(err)
-	}
+    c, err := feiyin.NewClient(MEMBER_CODE, APPID, APP_SECRET, REDIS_ADDR) //redis用来做accesstoken的缓存，例如：127.0.0.1:6379
+    if err != nil {
+        panic(err)
+    }
 
     //枚举已授权的商户清单
-	data, err := c.Members()
-	fmt.Println(data, err)
+    data, err := c.Members()
+    fmt.Println(data, err)
 
     //查询已授权商户信息
     data, err = c.Member(UID)
@@ -74,8 +74,8 @@ func main() {
 			TEXT 50,50,"4",0,1,1,"DEMO FOR TEXT"
 			PRINT 1`
 
-	id, err := c.TemplateAdd("test", content, "tsc", "test-desc")
-	fmt.Println(id, err)
+    id, err := c.TemplateAdd("test", content, "tsc", "test-desc")
+    fmt.Println(id, err)
 
     //编辑标签打印模板
     content := `SIZE 60 mm,40 mm
@@ -83,8 +83,8 @@ func main() {
 			TEXT 50,50,"4",0,1,1,"DEMO FOR TEXT {{name}}"
 			PRINT 1`
 
-	id, err := c.TemplateEdit(TEMPLATE_ID, "test", content, "tsc", "test-desc")
-	fmt.Println(id, err)
+    id, err := c.TemplateEdit(TEMPLATE_ID, "test", content, "tsc", "test-desc")
+    fmt.Println(id, err)
 
     //获取指定的打印模板
     data, err = c.Template(TEMPLATE_ID)
