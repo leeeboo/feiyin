@@ -1,9 +1,9 @@
-#飞印打印机Golang SDK
+# 飞印打印机Golang SDK
 
-飞印打印机：http://www.feyin.net/
-相关API文档：https://www.showdoc.cc/feyin?page_id=350026008697847
+* 飞印打印机：http://www.feyin.net/
+* 相关API文档：https://www.showdoc.cc/feyin?page_id=350026008697847
 
-使用方法：
+## 使用方法：
 
 ```go
 package main
