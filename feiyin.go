@@ -93,18 +93,21 @@ func NewClient(membercode string, appid string, secret string, redisAddr string)
 
 	client.ApiBase = "https://api.open.feyin.net"
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
-		DB:   3,
-	})
+	if redisAddr != "" {
 
-	_, err := redisClient.Ping().Result()
+		redisClient := redis.NewClient(&redis.Options{
+			Addr: redisAddr,
+			DB:   3,
+		})
 
-	if err != nil {
-		return nil, err
+		_, err := redisClient.Ping().Result()
+
+		if err != nil {
+			return nil, err
+		}
+
+		client.Cache = redisClient
 	}
-
-	client.Cache = redisClient
 
 	return client, nil
 }
@@ -457,7 +460,12 @@ func (this *Client) refreshAccessToken() error {
 
 	cacheKey := fmt.Sprintf("FeiyinSDKAccessToken_%s%s", this.MemberCode, this.Appid)
 
-	cache, err := this.Cache.Get(cacheKey).Result()
+	var cache string
+	var err error
+
+	if this.Cache != nil {
+		cache, err = this.Cache.Get(cacheKey).Result()
+	}
 
 	if err != nil || cache == "" {
 
@@ -483,7 +491,9 @@ func (this *Client) refreshAccessToken() error {
 
 		this.AccessToken = token.AccessToken
 
-		this.Cache.Set(cacheKey, this.AccessToken, time.Duration(token.ExpiresIn)*time.Second)
+		if this.Cache != nil {
+			this.Cache.Set(cacheKey, this.AccessToken, time.Duration(token.ExpiresIn)*time.Second)
+		}
 	} else {
 		this.AccessToken = cache
 

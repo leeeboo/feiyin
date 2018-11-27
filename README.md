@@ -13,7 +13,8 @@ import "github.com/leeeboo/feiyin"
 
 
 func main() {
-    c, err := feiyin.NewClient(MEMBER_CODE, APPID, APP_SECRET, REDIS_ADDR) //redis用来做accesstoken的缓存，例如：127.0.0.1:6379
+    c, err := feiyin.NewClient(MEMBER_CODE, APPID, APP_SECRET, REDIS_ADDR) 
+    //redis用来做accesstoken的缓存，例如：127.0.0.1:6379 如果传入空字符串则不使用缓存。
     if err != nil {
         panic(err)
     }
