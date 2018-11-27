@@ -496,8 +496,6 @@ func (this *Client) refreshAccessToken() error {
 		}
 	} else {
 		this.AccessToken = cache
-
-		fmt.Println("CACHED", this.AccessToken)
 	}
 
 	return nil
