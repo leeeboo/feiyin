@@ -22,8 +22,6 @@ func httpPost(api string, param map[string]interface{}) ([]byte, error) {
 
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
-	fmt.Println(buf.String())
-
 	resp, err := http.Post(api, "application/json", strings.NewReader(buf.String()))
 
 	if err != nil {
