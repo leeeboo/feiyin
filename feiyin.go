@@ -15,7 +15,7 @@ type Client struct {
 	Appid       string
 	Secret      string
 	ApiBase     string
-	AccessToken *AccessToken
+	AccessToken string
 	Cache       *redis.Client
 }
 
@@ -453,13 +453,13 @@ func (this *Client) Devices() ([]Device, error) {
 	return list, nil
 }
 
-func (this *Client) RefreshAccessToken() error {
+func (this *Client) refreshAccessToken() error {
 
-	cacheKey := fmt.Sprintf("FeiyinSDKAccessToken%s%s", this.MemberCode, this.Appid)
+	cacheKey := fmt.Sprintf("FeiyinSDKAccessToken_%s%s", this.MemberCode, this.Appid)
 
-	body, err := this.Cache.Get(cacheKey).Bytes()
+	cache, err := this.Cache.Get(cacheKey).Result()
 
-	if err != nil || body == nil {
+	if err != nil || cache == "" {
 
 		param := map[string]interface{}{
 			"code":   this.MemberCode,
@@ -467,24 +467,28 @@ func (this *Client) RefreshAccessToken() error {
 			"appid":  this.Appid,
 		}
 
-		body, err = this.httpGet("/token", param)
+		body, err := this.httpGet("/token", param)
 
 		if err != nil {
 			return err
 		}
 
-		this.Cache.Set(cacheKey, body, 7000*time.Second)
+		token := new(AccessToken)
+
+		err = json.Unmarshal(body, token)
+
+		if err != nil {
+			return err
+		}
+
+		this.AccessToken = token.AccessToken
+
+		this.Cache.Set(cacheKey, this.AccessToken, time.Duration(token.ExpiresIn)*time.Second)
+	} else {
+		this.AccessToken = cache
+
+		fmt.Println("CACHED", this.AccessToken)
 	}
-
-	token := new(AccessToken)
-
-	err = json.Unmarshal(body, token)
-
-	if err != nil {
-		return err
-	}
-
-	this.AccessToken = token
 
 	return nil
 }
@@ -496,8 +500,8 @@ func (this *Client) httpGet(apiPath string, param map[string]interface{}) ([]byt
 	}
 
 	if apiPath != "/token" {
-		this.RefreshAccessToken()
-		param["access_token"] = this.AccessToken.AccessToken
+		this.refreshAccessToken()
+		param["access_token"] = this.AccessToken
 	}
 
 	return httpGet(fmt.Sprintf("%s%s", this.ApiBase, apiPath), param)
@@ -511,8 +515,8 @@ func (this *Client) httpPost(apiPath string, param map[string]interface{}) ([]by
 		connect = "&"
 	}
 
-	this.RefreshAccessToken()
-	apiPath = fmt.Sprintf("%s%saccess_token=%s", apiPath, connect, this.AccessToken.AccessToken)
+	this.refreshAccessToken()
+	apiPath = fmt.Sprintf("%s%saccess_token=%s", apiPath, connect, this.AccessToken)
 
 	return httpPost(fmt.Sprintf("%s%s", this.ApiBase, apiPath), param)
 }
