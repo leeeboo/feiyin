@@ -47,7 +47,7 @@ type PrintResponse struct {
 type MsgStatus struct {
 	ResponseError
 	MsgNo     string `json:"msg_no"`
-	Status    int    `json:"status"`
+	Status    string `json:"status"`
 	MsgTime   string `json:"msg_time"`
 	PrintTime string `json:"print_time"`
 }
